@@ -4,12 +4,19 @@
 
 module "cloudtrail_cloudwatch_role" {
   source      = "./modules/iam_service_role"
-  name        = var.iam_role_name
+  name        = var.cloudtrail_iam_role_name
   services    = ["cloudtrail.amazonaws.com"]
   policy_json = data.aws_iam_policy_document.cloudtrail_cloudwatch.json
   tags        = var.cloudtrail_config.tags
 }
-
+module "aws_chatbot_role" {
+  source              = "./modules/iam_service_role"
+  name                = var.chatbot_iam_role_name
+  services            = ["chatbot.amazonaws.com"]
+  managed_policy_arns = ["arn:aws:iam::aws:policy/ReadOnlyAccess"]
+  policy_json         = data.aws_iam_policy_document.aws_chatbot.json
+  tags                = var.cloudtrail_config.tags
+}
 data "aws_iam_policy_document" "cloudtrail-s3" {
   statement {
     sid = "AWSCloudTrailAclCheck20150319"

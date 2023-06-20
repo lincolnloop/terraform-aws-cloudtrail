@@ -1,7 +1,7 @@
 ##########################################
 #  Data configurations for the module    #
 ##########################################
-
+data "aws_caller_identity" "current" {}
 data "aws_iam_policy_document" "cloudtrail_cloudwatch" {
   statement {
     sid       = "AWSCloudTrailC"
@@ -115,6 +115,64 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
       values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
     }
+  }
+}
+
+data "aws_iam_policy_document" "aws_chatbot_sns" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+
+    actions   = ["SNS:Publish"]
+    resources = [aws_sns_topic.aws_chatbot.arn]
+  }
+}
+
+data "aws_iam_policy_document" "aws_chatbot" {
+  statement {
+    actions = [
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+      "sns:Get*",
+      "sns:List*",
+      "sns:Check*",
+    ]
+    resources = ["*"]
+  }
+  # https://docs.aws.amazon.com/chatbot/latest/adminguide/chatbot-cli-commands.html#about-readonlycommand-chatbot-policy
+  statement {
+    effect = "Deny"
+    actions = [
+      "iam:*",
+      "kms:*",
+      "sts:*",
+      "cognito-idp:GetSigningCertificate",
+      "ec2:GetPasswordData",
+      "ecr:GetAuthorizationToken",
+      "gamelift:RequestUploadCredentials",
+      "gamelift:GetInstanceAccess",
+      "lightsail:DownloadDefaultKeyPair",
+      "lightsail:GetInstanceAccessDetail",
+      "lightsail:GetKeyPair",
+      "lightsail:GetKeyPairs",
+      "redshift:GetClusterCredentials",
+      "s3:GetBucketPolicy",
+      "storagegateway:DescribeChapCredentials"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions   = ["sns:Subscribe"]
+    resources = [aws_sns_topic.aws_chatbot.arn]
   }
 }
 
