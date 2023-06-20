@@ -1,4 +1,3 @@
-Sure, here is a basic template for a README file for an AWS CloudTrail Terraform module:
 
 ```markdown
 # Terraform AWS CloudTrail Module
