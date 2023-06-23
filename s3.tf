@@ -3,95 +3,39 @@
 ##########################################
 
 resource "aws_s3_bucket" "cloudtrail-logging" {
-  bucket = "${var.s3_prefix}aws-cloudtrail-logging"
-  acl    = "log-delivery-write"
-
-  versioning {
-    # Requires root AWS access
-    # mfa_delete = true
-    enabled = true
-  }
-
-  lifecycle_rule {
-    id      = "Delete previous after 35 days"
-    prefix  = ""
-    enabled = true
-
-    noncurrent_version_expiration {
-      days = "35"
-    }
-  }
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-  tags = var.cloudtrail_config.tags
+  bucket = "${var.s3_prefix}-aws-cloudtrail"
+  tags   = var.cloudtrail_config.tags
 }
 
-resource "aws_s3_bucket_public_access_block" "cloudtrail-logging" {
-  bucket                  = aws_s3_bucket.cloudtrail-logging.bucket
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+resource "aws_s3_bucket_ownership_controls" "cloudtrail-logging" {
+  bucket = aws_s3_bucket.cloudtrail-logging.id
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
-
-resource "aws_s3_bucket_policy" "cloudtrail-logging" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail-logging" {
   bucket = aws_s3_bucket.cloudtrail-logging.bucket
-  policy = <<-EOF
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Deny",
-                "Principal": "*",
-                "Action": "*",
-                "Resource": "${aws_s3_bucket.cloudtrail-logging.arn}/*",
-                "Condition": {"Bool": {"aws:SecureTransport": "false"}}
-            }
-        ]
+  rule {
+    apply_server_side_encryption_by_default {
+      # AES256 is the only supported option for bucket logging
+      # https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html#server-access-logging-overview
+      sse_algorithm = "AES256"
     }
-    EOF
+  }
 }
-
-resource "aws_s3_bucket" "cloudtrail" {
-  bucket = "${var.s3_prefix}aws-cloudtrail"
-  acl    = "private"
-  logging {
-    target_bucket = aws_s3_bucket.cloudtrail-logging.bucket
+resource "aws_s3_bucket_versioning" "cloudtrail-logging" {
+  bucket = aws_s3_bucket.cloudtrail-logging.bucket
+  versioning_configuration {
+    status = "Enabled"
   }
-  versioning {
-    # Requires root AWS access
-    # mfa_delete = true
-    enabled = true
-  }
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-
-  lifecycle_rule {
-    id      = "Delete previous after 35 days"
-    prefix  = ""
-    enabled = true
-
+}
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail-logging" {
+  bucket = aws_s3_bucket.cloudtrail-logging.bucket
+  rule {
+    id     = "Delete previous after 35 days"
+    status = "Enabled"
     noncurrent_version_expiration {
-      days = "35"
+      noncurrent_days = "35"
     }
   }
-  tags = var.cloudtrail_config.tags
-}
-
-resource "aws_s3_bucket_public_access_block" "cloudtrail" {
-  bucket                  = aws_s3_bucket.cloudtrail.bucket
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
 }

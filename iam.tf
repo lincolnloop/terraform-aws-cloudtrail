@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
     actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.cloudtrail.arn]
+    resources = [aws_s3_bucket.cloudtrail-logging.arn]
   }
   statement {
     sid = "AWSCloudTrailWrite20150319"
@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
     condition {
       test     = "StringEquals"
       values   = ["bucket-owner-full-control"]
@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
     }
     effect    = "Deny"
     actions   = ["*"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
+    resources = ["${aws_s3_bucket.cloudtrail-logging.arn}/*"]
     condition {
       test     = "Bool"
       values   = [false]
@@ -58,6 +58,6 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail-s3" {
-  bucket = aws_s3_bucket.cloudtrail.id
+  bucket = aws_s3_bucket.cloudtrail-logging.id
   policy = data.aws_iam_policy_document.cloudtrail-s3.json
 }

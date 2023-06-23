@@ -199,7 +199,7 @@ resource "aws_kms_alias" "cloudtrail" {
 
 resource "aws_cloudtrail" "this" {
   name                       = var.name
-  s3_bucket_name             = aws_s3_bucket.cloudtrail.bucket
+  s3_bucket_name             = aws_s3_bucket.cloudtrail-logging.bucket
   cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
   cloud_watch_logs_role_arn  = module.cloudtrail_cloudwatch_role.arn
   kms_key_id                 = aws_kms_key.cloudtrail.arn
