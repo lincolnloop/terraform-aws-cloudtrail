@@ -93,11 +93,6 @@ variable "chatbot_sns_topic_name" {
   description = "SNS topic name for chatbot"
   default     = "aws-chatbot"
 }
-variable "chatbot_kms_master_key_name" {
-  type        = string
-  description = "KMS master key ID name for chatbot"
-  default     = "alias/aws/sns"
-}
 variable "cloudwatch_log_group_name" {
   type = string
   description = "Name for the CloudWatch log group that will contain the cloudtrail logs"

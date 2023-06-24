@@ -176,6 +176,37 @@ data "aws_iam_policy_document" "aws_chatbot" {
   }
 }
 
+data "aws_iam_policy_document" "aws_chatbot_kms" {
+  statement {
+    sid = "Enable IAM User Permissions"
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      ]
+    }
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "Allow CloudWatch to use the key"
+    effect = "Allow"
+    
+    principals {
+      type        = "Service"
+      identifiers = ["cloudwatch.amazonaws.com"]
+    }
+    
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*"
+    ]
+    
+    resources = ["*"]
+  }
+}
+
 ##########################################
 #   KMS and encryption resources         # 
 ##########################################
@@ -191,6 +222,17 @@ resource "aws_kms_key" "cloudtrail" {
 resource "aws_kms_alias" "cloudtrail" {
   target_key_id = aws_kms_key.cloudtrail.arn
   name          = "alias/cloudtrail"
+}
+
+resource "aws_kms_key" "aws_chatbot_kms" {
+  description = "KMS key for CloudWatch alarms to access SNS topic"
+  policy      = data.aws_iam_policy_document.aws_chatbot_kms.json
+  tags        = var.cloudtrail_config.tags
+}
+
+resource "aws_kms_alias" "aws_chatbot_kms" {
+  target_key_id = aws_kms_key.aws_chatbot_kms.arn
+  name          = "alias/sns-chatbot"
 }
 
 ##########################################

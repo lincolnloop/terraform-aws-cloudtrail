@@ -1,6 +1,6 @@
 resource "aws_sns_topic" "aws_chatbot" {
   name              = var.chatbot_sns_topic_name
-  kms_master_key_id = var.chatbot_kms_master_key_name
+  kms_master_key_id = aws_kms_key.aws_chatbot_kms.arn
   tags              = var.cloudtrail_config.tags
 }
 

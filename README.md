@@ -27,7 +27,6 @@ module "cloudtrail" {
 | cloudtrail_iam_role_name | IAM Role name for CloudTrail Role. | `string` | `CloudTrail` | no |
 | chatbot_iam_role_name | IAM Role name for Chatbot Role. | `string` | `AwsChatbot` | no |
 | chatbot_sns_topic_name | SNS topic name for chatbot. | `string` | `aws-chatbot` | no |
-| chatbot_kms_master_key_name | KMS master key ID name for chatbot. | `string` | `alias/aws/sns` | no |
 | cloudwatch_log_group_name | Name for the CloudWatch log group that will contain the cloudtrail logs. | `string` | `/cloudtrail` | no |
 | cloudwatch_retention_in_days | Cloudwatch log group retention specified in days. | `number` | `1` | no |
 | description | Description for the cloud trail group and new policy group. | `string` | `cloudtrail` | yes |
