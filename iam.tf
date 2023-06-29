@@ -2,21 +2,8 @@
 #  IAM configurations for ClodTrail S3   #
 ##########################################
 
-module "cloudtrail_cloudwatch_role" {
-  source      = "./modules/iam_service_role"
-  name        = var.cloudtrail_iam_role_name
-  services    = ["cloudtrail.amazonaws.com"]
-  policy_json = data.aws_iam_policy_document.cloudtrail_cloudwatch.json
-  tags        = var.cloudtrail_config.tags
-}
-module "aws_chatbot_role" {
-  source              = "./modules/iam_service_role"
-  name                = var.chatbot_iam_role_name
-  services            = ["chatbot.amazonaws.com"]
-  managed_policy_arns = ["arn:aws:iam::aws:policy/ReadOnlyAccess"]
-  policy_json         = data.aws_iam_policy_document.aws_chatbot.json
-  tags                = var.cloudtrail_config.tags
-}
+# Data blocks
+
 data "aws_iam_policy_document" "cloudtrail-s3" {
   statement {
     sid = "AWSCloudTrailAclCheck20150319"
@@ -57,6 +44,34 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
   }
 }
 
+data "aws_iam_policy_document" "cloudtrail_cloudwatch_role_assume_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      identifiers = ["cloudtrail.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+}
+##########################################
+#  IAM Roles                             #
+##########################################
+
+# Cloudwatch Role
+resource "aws_iam_role" "cloudtrail_cloudwatch_role" {
+  name               = var.cloudtrail_iam_role_name
+  path               = "/service-role/"
+  assume_role_policy = data.aws_iam_policy_document.cloudtrail_cloudwatch_role_assume_policy.json
+  tags               = var.cloudtrail_config.tags
+}
+
+resource "aws_iam_role_policy" "cloudtrail_cloudwatch_role_policy" {
+  name   = var.cloudtrail_iam_role_name
+  policy = data.aws_iam_policy_document.cloudtrail_cloudwatch.json
+  role   = aws_iam_role.cloudtrail_cloudwatch_role.id
+}
+
+# IAM bucket policy
 resource "aws_s3_bucket_policy" "cloudtrail-s3" {
   bucket = aws_s3_bucket.cloudtrail-logging.id
   policy = data.aws_iam_policy_document.cloudtrail-s3.json

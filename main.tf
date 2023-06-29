@@ -118,7 +118,7 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
   }
 }
 
-data "aws_iam_policy_document" "aws_chatbot_sns" {
+data "aws_iam_policy_document" "aws_cloudtrail_sns" {
   statement {
     principals {
       type        = "AWS"
@@ -132,78 +132,7 @@ data "aws_iam_policy_document" "aws_chatbot_sns" {
     }
 
     actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.aws_chatbot.arn]
-  }
-}
-
-data "aws_iam_policy_document" "aws_chatbot" {
-  statement {
-    actions = [
-      "cloudwatch:Describe*",
-      "cloudwatch:Get*",
-      "cloudwatch:List*",
-      "sns:Get*",
-      "sns:List*",
-      "sns:Check*",
-    ]
-    resources = ["*"]
-  }
-  # https://docs.aws.amazon.com/chatbot/latest/adminguide/chatbot-cli-commands.html#about-readonlycommand-chatbot-policy
-  statement {
-    effect = "Deny"
-    actions = [
-      "iam:*",
-      "kms:*",
-      "sts:*",
-      "cognito-idp:GetSigningCertificate",
-      "ec2:GetPasswordData",
-      "ecr:GetAuthorizationToken",
-      "gamelift:RequestUploadCredentials",
-      "gamelift:GetInstanceAccess",
-      "lightsail:DownloadDefaultKeyPair",
-      "lightsail:GetInstanceAccessDetail",
-      "lightsail:GetKeyPair",
-      "lightsail:GetKeyPairs",
-      "redshift:GetClusterCredentials",
-      "s3:GetBucketPolicy",
-      "storagegateway:DescribeChapCredentials"
-    ]
-    resources = ["*"]
-  }
-  statement {
-    actions   = ["sns:Subscribe"]
-    resources = [aws_sns_topic.aws_chatbot.arn]
-  }
-}
-
-data "aws_iam_policy_document" "aws_chatbot_kms" {
-  statement {
-    sid = "Enable IAM User Permissions"
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-      ]
-    }
-    actions   = ["kms:*"]
-    resources = ["*"]
-  }
-  statement {
-    sid    = "Allow CloudWatch to use the key"
-    effect = "Allow"
-    
-    principals {
-      type        = "Service"
-      identifiers = ["cloudwatch.amazonaws.com"]
-    }
-    
-    actions = [
-      "kms:Decrypt",
-      "kms:GenerateDataKey*"
-    ]
-    
-    resources = ["*"]
+    resources = [aws_sns_topic.cloudtrail.arn]
   }
 }
 
@@ -224,17 +153,6 @@ resource "aws_kms_alias" "cloudtrail" {
   name          = "alias/cloudtrail"
 }
 
-resource "aws_kms_key" "aws_chatbot_kms" {
-  description = "KMS key for CloudWatch alarms to access SNS topic"
-  policy      = data.aws_iam_policy_document.aws_chatbot_kms.json
-  tags        = var.cloudtrail_config.tags
-}
-
-resource "aws_kms_alias" "aws_chatbot_kms" {
-  target_key_id = aws_kms_key.aws_chatbot_kms.arn
-  name          = "alias/sns-chatbot"
-}
-
 ##########################################
 #   CloudTrail Resources                 #  
 ##########################################
@@ -243,7 +161,7 @@ resource "aws_cloudtrail" "this" {
   name                       = var.name
   s3_bucket_name             = aws_s3_bucket.cloudtrail-logging.bucket
   cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
-  cloud_watch_logs_role_arn  = module.cloudtrail_cloudwatch_role.arn
+  cloud_watch_logs_role_arn  = aws_iam_role.cloudtrail_cloudwatch_role.arn
   kms_key_id                 = aws_kms_key.cloudtrail.arn
   enable_log_file_validation = true
   is_multi_region_trail      = true

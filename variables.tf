@@ -83,15 +83,10 @@ variable "cloudtrail_iam_role_name" {
   description = "IAM Role name for CloudTrail Role"
   default     = "CloudTrail"
 }
-variable "chatbot_iam_role_name" {
+variable "cloudtrail_sns_topic_name" {
   type        = string
-  description = "IAM Role name for Chatbot Role"
-  default     = "AwsChatbot"
-}
-variable "chatbot_sns_topic_name" {
-  type        = string
-  description = "SNS topic name for chatbot"
-  default     = "aws-chatbot"
+  description = "SNS topic name for cloudtrail"
+  default     = "aws-cloudtrail"
 }
 variable "cloudwatch_log_group_name" {
   type = string
