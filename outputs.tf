@@ -7,7 +7,7 @@ output "s3_bucket_arn" {
   value       = aws_s3_bucket.cloudtrail-logging.arn
 }
 
-output "cloudwatch_log_group" {
+output "cloudwatch_log_group_arn" {
   description = "The ARN of the Cloudwatch log group"
   value       = aws_cloudwatch_log_group.cloudtrail.arn
 }

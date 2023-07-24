@@ -1,18 +1,4 @@
 ##########################################
-#   SNS resources                        #  
-##########################################
-resource "aws_sns_topic" "cloudtrail" {
-  name              = var.cloudtrail_sns_topic_name
-  kms_master_key_id = aws_kms_key.cloudtrail.arn
-  tags              = var.cloudtrail_tags
-}
-
-resource "aws_sns_topic_policy" "cloudtrail" {
-  arn    = aws_sns_topic.cloudtrail.arn
-  policy = data.aws_iam_policy_document.aws_cloudtrail_sns.json
-}
-
-##########################################
 #   CloudWatch resources                 #  
 ##########################################
 
@@ -45,6 +31,6 @@ resource "aws_cloudwatch_metric_alarm" "cloudtrail" {
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   threshold           = lookup(each.value, "threshold", 0)
-  alarm_actions       = [aws_sns_topic.cloudtrail.arn]
+  alarm_actions       = var.alarm_action_arns
   tags                = var.cloudtrail_tags
 }

@@ -1,3 +1,8 @@
+variable "alarm_action_arns" {
+  description = "List of ARNs for the alarm actions (e.g., SNS topic ARNs)"
+  type        = list(string)
+}
+
 variable "cloudtrail_tags" {
   description = "Tags configuration for CloudTrail"
   type        = map(string)

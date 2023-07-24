@@ -118,23 +118,6 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
   }
 }
 
-data "aws_iam_policy_document" "aws_cloudtrail_sns" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceOwner"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-
-    actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.cloudtrail.arn]
-  }
-}
 
 ##########################################
 #   KMS and encryption resources         # 
