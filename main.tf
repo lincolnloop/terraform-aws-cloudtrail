@@ -145,7 +145,7 @@ resource "aws_kms_key" "cloudtrail" {
   enable_key_rotation     = true
   deletion_window_in_days = 7
   policy                  = data.aws_iam_policy_document.cloudtrail_key_policy.json
-  tags                    = var.cloudtrail_config.tags
+  tags                    = var.cloudtrail_tags
 }
 
 resource "aws_kms_alias" "cloudtrail" {
@@ -165,6 +165,6 @@ resource "aws_cloudtrail" "this" {
   kms_key_id                 = aws_kms_key.cloudtrail.arn
   enable_log_file_validation = true
   is_multi_region_trail      = true
-  tags                       = var.cloudtrail_config.tags
+  tags                       = var.cloudtrail_tags
   depends_on                 = [aws_s3_bucket_policy.cloudtrail-s3]
 }

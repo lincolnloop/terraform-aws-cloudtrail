@@ -2,7 +2,7 @@ output "cloudtrail_arn" {
   description = "The ARN of the CloudTrail"
   value       = aws_cloudtrail.this.arn
 }
-output "s3_bucket_cloudtrail" {
+output "s3_bucket_arn" {
   description = "The ARN of the CloudTrail S3 bucket"
   value       = aws_s3_bucket.cloudtrail-logging.arn
 }
