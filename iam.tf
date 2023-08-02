@@ -62,7 +62,7 @@ resource "aws_iam_role" "cloudtrail_cloudwatch_role" {
   name               = var.cloudtrail_iam_role_name
   path               = "/service-role/"
   assume_role_policy = data.aws_iam_policy_document.cloudtrail_cloudwatch_role_assume_policy.json
-  tags               = var.cloudtrail_tags
+  tags               = var.tags
 }
 
 resource "aws_iam_role_policy" "cloudtrail_cloudwatch_role_policy" {
