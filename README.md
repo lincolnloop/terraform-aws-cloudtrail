@@ -15,10 +15,11 @@ module "cloudtrail" {
   source                       = "github.com/lincolnloop/terraform-aws-cloudtrail.git"
   name                         = "cloudtrail"
   description                  = "Cloudtrail"
-  cloudwatch_log_group_name    = "/cloudtrail"
+  cloudwatch_log_group_name    = "/aws/cloudtrail"
   cloudwatch_retention_in_days = 1
   cloudtrail_iam_role_name     = "CloudWatchRole"
   s3_prefix                    = "cloudtrail"
+  tags                         = var.tags
 }
 
 ```
