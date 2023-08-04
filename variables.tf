@@ -14,7 +14,7 @@ variable "cloudtrail_iam_role_name" {
 variable "cloudwatch_log_group_name" {
   type = string
   description = "Name for the CloudWatch log group that will contain the cloudtrail logs"
-  default = "/cloudtrail"
+  default = "/aws/cloudtrail"
 }
 variable "cloudwatch_retention_in_days" {
   type = number

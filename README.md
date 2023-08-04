@@ -29,7 +29,7 @@ module "cloudtrail" {
 |------|-------------|------|---------|:--------:|
 | tags | Configuration for CloudTrail alarms and tags. | `object` | Review next section for default value | yes |
 | cloudtrail_iam_role_name | IAM Role name for CloudTrail Role. | `string` | `CloudTrail` | no |
-| cloudwatch_log_group_name | Name for the CloudWatch log group that will contain the cloudtrail logs. | `string` | `/cloudtrail` | no |
+| cloudwatch_log_group_name | Name for the CloudWatch log group that will contain the cloudtrail logs. | `string` | `/aws/cloudtrail` | no |
 | cloudwatch_retention_in_days | Cloudwatch log group retention specified in days. | `number` | `1` | no |
 | description | Description for the cloud trail group and new policy group. | `string` | `cloudtrail` | yes |
 | name | Name for the cloudtrail group configuration and new policy group. | `string` | `cloudtrail` | no |
