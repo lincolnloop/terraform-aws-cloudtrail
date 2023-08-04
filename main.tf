@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
     }
     actions = [
       "kms:Decrypt",
-      "kms:ReEncryptFrom"
+      "kms:ReEncryptFrom",
     ]
     resources = ["*"]
     condition {
@@ -112,7 +112,7 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
     }
     actions = [
       "kms:Decrypt",
-      "kms:ReEncryptFrom"
+      "kms:ReEncryptFrom",
     ]
     resources = ["*"]
     condition {
