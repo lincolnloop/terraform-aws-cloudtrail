@@ -35,6 +35,7 @@ module "cloudtrail" {
 | description | Description for the cloud trail group and new policy group. | `string` | `cloudtrail` | yes |
 | name | Name for the cloudtrail group configuration and new policy group. | `string` | `cloudtrail` | no |
 | s3_prefix | S3 naming and configuration prefix. | `string` | n/a | yes |
+| organization | Set the `is_organization_trail` flag on the trail. | `bool` | `false` | no |
 
 ### Variable `tags`
 

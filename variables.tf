@@ -35,3 +35,7 @@ variable "s3_prefix" {
   type        = string
   description = "S3 naming and configuration prefix"
 }
+variable "organization" {
+  type        = bool
+  description = "Enable organization-level trail"
+}
