@@ -2,6 +2,8 @@
 #  Data configurations for the module    #
 ##########################################
 data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 data "aws_iam_policy_document" "cloudtrail_cloudwatch" {
   statement {
     sid       = "AWSCloudTrailC"
@@ -38,6 +40,14 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
       values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+    }
+    dynamic "condition" {
+      for_each = var.organization ? [1] : []
+      content {
+        test     = "StringEquals"
+        variable = "AWS:SourceArn"
+        values   = ["arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${var.name}"]
+      }
     }
   }
 
@@ -85,7 +95,7 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
     condition {
       test     = "StringEquals"
       variable = "kms:ViaService"
-      values   = ["ec2.us-east-1.amazonaws.com"]
+      values   = ["ec2.${data.aws_region.current.name}.amazonaws.com"]
     }
     condition {
       test     = "StringEquals"
@@ -148,6 +158,7 @@ resource "aws_cloudtrail" "this" {
   kms_key_id                 = aws_kms_key.cloudtrail.arn
   enable_log_file_validation = true
   is_multi_region_trail      = true
+  is_organization_trail      = var.organization
   tags                       = var.tags
   depends_on                 = [aws_s3_bucket_policy.cloudtrail-s3]
 }

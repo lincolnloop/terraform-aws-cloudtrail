@@ -3,6 +3,7 @@
 ##########################################
 
 # Data blocks
+data "aws_organizations_organization" "current" {}
 
 data "aws_iam_policy_document" "cloudtrail-s3" {
   statement {
@@ -13,6 +14,11 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
     }
     actions   = ["s3:GetBucketAcl"]
     resources = [aws_s3_bucket.cloudtrail-logging.arn]
+    condition {
+      test     = "StringEquals"
+      values   = ["arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${var.name}"]
+      variable = "AWS:SourceArn"
+    }
   }
   statement {
     sid = "AWSCloudTrailWrite20150319"
@@ -20,12 +26,20 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    actions = ["s3:PutObject"]
+    resources = concat(
+      ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"],
+      var.organization ? ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_organizations_organization.current.id}/*"] : [],
+    )
     condition {
       test     = "StringEquals"
       values   = ["bucket-owner-full-control"]
       variable = "s3:x-amz-acl"
+    }
+    condition {
+      test     = "StringEquals"
+      values   = ["arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${var.name}"]
+      variable = "AWS:SourceArn"
     }
   }
   statement {
