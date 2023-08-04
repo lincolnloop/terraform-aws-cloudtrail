@@ -118,23 +118,6 @@ data "aws_iam_policy_document" "cloudtrail_key_policy" {
   }
 }
 
-data "aws_iam_policy_document" "aws_cloudtrail_sns" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceOwner"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-
-    actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.cloudtrail.arn]
-  }
-}
 
 ##########################################
 #   KMS and encryption resources         # 
@@ -145,7 +128,7 @@ resource "aws_kms_key" "cloudtrail" {
   enable_key_rotation     = true
   deletion_window_in_days = 7
   policy                  = data.aws_iam_policy_document.cloudtrail_key_policy.json
-  tags                    = var.cloudtrail_config.tags
+  tags                    = var.tags
 }
 
 resource "aws_kms_alias" "cloudtrail" {
@@ -165,6 +148,16 @@ resource "aws_cloudtrail" "this" {
   kms_key_id                 = aws_kms_key.cloudtrail.arn
   enable_log_file_validation = true
   is_multi_region_trail      = true
-  tags                       = var.cloudtrail_config.tags
+  tags                       = var.tags
   depends_on                 = [aws_s3_bucket_policy.cloudtrail-s3]
+}
+
+##########################################
+#   CloudWatch resources                 #  
+##########################################
+
+resource "aws_cloudwatch_log_group" "cloudtrail" {
+  name              = var.cloudwatch_log_group_name
+  retention_in_days = var.cloudwatch_retention_in_days
+  tags              = var.tags
 }

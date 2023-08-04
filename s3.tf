@@ -4,7 +4,7 @@
 
 resource "aws_s3_bucket" "cloudtrail-logging" {
   bucket = "${var.s3_prefix}-aws-cloudtrail"
-  tags   = var.cloudtrail_config.tags
+  tags   = var.tags
 }
 
 resource "aws_s3_bucket_ownership_controls" "cloudtrail-logging" {
