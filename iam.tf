@@ -3,7 +3,9 @@
 ##########################################
 
 # Data blocks
-data "aws_organizations_organization" "current" {}
+data "aws_organizations_organization" "current" {
+  count = var.organization ? 1 : 0
+}
 
 data "aws_iam_policy_document" "cloudtrail-s3" {
   statement {
@@ -29,7 +31,7 @@ data "aws_iam_policy_document" "cloudtrail-s3" {
     actions = ["s3:PutObject"]
     resources = concat(
       ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"],
-      var.organization ? ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_organizations_organization.current.id}/*"] : [],
+      var.organization ? ["${aws_s3_bucket.cloudtrail-logging.arn}/AWSLogs/${data.aws_organizations_organization.current[0].id}/*"] : [],
     )
     condition {
       test     = "StringEquals"
